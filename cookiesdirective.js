@@ -3,10 +3,22 @@
  * Author: Ollie Phillips
  * 20 June 2012
  */
-function cookiesDirective(disclosurePos, displayTimes, privacyPolicyUri, cookieScripts)
+function cookiesDirective(options)
 {
+    if (typeof options == 'undefined') {
+        options = {
+            repeatcount: 0,
+            policyuri: null,
+            thirdpartyscripts: '',
+            position: top
+        };
+    }
+    var displayTimes = options.repeatcount || 0;
+    var privacyPolicyUri = options.policyuri || null;
+    var cookieScripts = options.thirdpartyscripts || '';
+
     // From v1.1 the position can be set to 'top' or 'bottom' of viewport
-    var disclosurePosition = disclosurePos;
+    var disclosurePosition = options.position || 'top';
 
     // Better check it!
     if ((disclosurePosition.toLowerCase() != 'top') && (disclosurePosition.toLowerCase() != 'bottom')) {
