@@ -7,52 +7,53 @@ Before using, make sure you're familiar with the license terms. This script is f
 
 How to use
 ================
-# Place this wrapper function html at the bottom of your page before the closing `</body>` tag. 
+1. Place this wrapper function html at the bottom of your page before the closing `</body>` tag. 
 If you don't have any cookie creating scripts you're done on this step.
-```html
+
+    ```html
 <script type="text/javascript">
     function cookiesDirectiveScriptWrapper(){
         // Cookie creating scripts etc here....
     }
 </script>
-```
+    ```
 
-If you have cookie creating scripts in your page, move them into this function, which will 
-prevent their execution until the user has agreed to receiving cookies (remove any 
-surrounding `<script type="text/javascript">` & `</script>` html tags from the scripts).
+    If you have cookie creating scripts in your page, move them into this function, which will 
+    prevent their execution until the user has agreed to receiving cookies (remove any 
+    surrounding `<script type="text/javascript">` & `</script>` html tags from the scripts).
 
-Sometimes the script might need to run in a certain place on your site, or it might contain
-the src attribute which links to a remote file. In these situations it is not sufficient to
-move the scripts into the wrapper function. Instead, you'll need to use the `cdScriptAppend()`
-function which can append the script to the `<head>` or `<body>` elements or, if you need it
-to run in a particular place in your page, as a child of any html element, by passing the element's
-id attribute. You specify the location using the second argument. 
-Use 'head', 'body', or your own element's id.
+    Sometimes the script might need to run in a certain place on your site, or it might contain
+    the src attribute which links to a remote file. In these situations it is not sufficient to
+    move the scripts into the wrapper function. Instead, you'll need to use the `cdScriptAppend()`
+    function which can append the script to the `<head>` or `<body>` elements or, if you need it
+    to run in a particular place in your page, as a child of any html element, by passing the element's
+    id attribute. You specify the location using the second argument. 
+    Use 'head', 'body', or your own element's id.
 
-For example, this page uses Google Analytics' asynchronous tracking script. 
-Google recommend it is placed between the `<head>` and `</head>` tags.
-I pasted the code Google provided to me in a file I named 'google.js' and saved that to
-the root of this website. Then I used the cdScriptAppend function to load it before the
-closing `</head>` tag in the page.
+    For example, this page uses Google Analytics' asynchronous tracking script. 
+    Google recommend it is placed between the `<head>` and `</head>` tags.
+    I pasted the code Google provided to me in a file I named 'google.js' and saved that to
+    the root of this website. Then I used the cdScriptAppend function to load it before the
+    closing `</head>` tag in the page.
 
-See the snippet below; 
+    See the snippet below; 
 
-```html
+    ```html
 <script type="text/javascript">
     function cookiesDirectiveScriptWrapper(){
         // Cookie creating scripts etc here....
         cdScriptAppend('google.js', 'head');
     }
 </script>
-```
+    ```
 
-# Next, paste this html just before your closing `</body>` tag (i.e below the code added in Step 1 above); 
+2. Next, paste this html just before your closing `</body>` tag (i.e below the code added in Step 1 above); 
 ```html
 <script type="text/javascript" src="http://js.cookiesdirective.com/1.5.js">
 </script>
 ```
 
-Finally, paste the below code before your closing `</body>` tag (i.e below the code added in Steps 1 and 2 above).
+3. Finally, paste the below code before your closing `</body>` tag (i.e below the code added in Steps 1 and 2 above).
 From version 1.3 the function `cookiesDirective()` accepts four arguments. The first (required) is the position
 in your page you want to serve the disclosure; value can be 'top' or 'bottom'. 
 The second (required) is the number of times you want to keep showing the disclosure if cookies are not 
@@ -87,7 +88,7 @@ user accepts them (i.e the scripts you moved to the wrapper function in Step 1).
 
 What it does
 ================
- This script makes your site compliant in-so-far as it notifies your users that some cookies, presumably those of your CMS, Blog or Shopping Cart have already been created (we believe these qualify as "necessary"). It also communicates what "additional" cookies will be created if your user consents to receiving cookies, and points out that whilst cookies can be blocked by your users, access to your site may be limited as a result. Finally, it provides a link to your site's privacy policy.
+This script makes your site compliant in-so-far as it notifies your users that some cookies, presumably those of your CMS, Blog or Shopping Cart have already been created (we believe these qualify as "necessary"). It also communicates what "additional" cookies will be created if your user consents to receiving cookies, and points out that whilst cookies can be blocked by your users, access to your site may be limited as a result. Finally, it provides a link to your site's privacy policy.
 
 Once consent is given no further disclosure is made on the site and your users can browse normally, even when they return to your website (that uses a cookie too). Until consent is given, the dialog will continue to be displayed, and cookie creating scripts placed in the wrapper function will not be running.
 
