@@ -9,22 +9,13 @@ function cookiesDirective(options)
         options = {
             repeatcount: 0,
             policyuri: null,
-            thirdpartyscripts: '',
-            position: top
+            thirdpartyapps: [],
+            position: 'top',
+            displaytimeout: -1
         };
     }
+
     var displayTimes = options.repeatcount || 0;
-    var privacyPolicyUri = options.policyuri || null;
-    var cookieScripts = options.thirdpartyscripts || '';
-
-    // From v1.1 the position can be set to 'top' or 'bottom' of viewport
-    var disclosurePosition = options.position || 'top';
-
-    // Better check it!
-    if ((disclosurePosition.toLowerCase() != 'top') && (disclosurePosition.toLowerCase() != 'bottom')) {
-        // Set a default of top
-        disclosurePosition = 'top';
-    }
 
     // Start Test/Loader (improved in v1.1)
     var jQueryVersion = '1.5';
@@ -54,21 +45,12 @@ function cookiesDirective(options)
                         }
 
                         if (displayTimes >= cdReadCookie('cookiesDisclosureCount')) {
-                            // Cookies not accepted make disclosure
-                            if (cookieScripts) {
-                                cdHandler(disclosurePosition, privacyPolicyUri, cookieScripts);
-                            } else {
-                                cdHandler(disclosurePosition, privacyPolicyUri);
-                            }
+                            cdHandler(options);
                         }
                     } else {
                         // No limit display on all pages
                         // Cookies not accepted make disclosure
-                        if (cookieScripts) {
-                            cdHandler(disclosurePosition, privacyPolicyUri, cookieScripts);
-                        } else {
-                            cdHandler(disclosurePosition, privacyPolicyUri);
-                        }
+                        cdHandler(options);
                     }
                 } else {
                     // Cookies accepted run script wrapper
@@ -93,20 +75,12 @@ function cookiesDirective(options)
 
                 if (displayTimes >= cdReadCookie('cookiesDisclosureCount')) {
                     // Cookies not accepted make disclosure
-                    if (cookieScripts) {
-                        cdHandler(disclosurePosition, privacyPolicyUri, cookieScripts);
-                    } else {
-                        cdHandler(disclosurePosition, privacyPolicyUri);
-                    }
+                    cdHandler(options);
                 }
             } else {
                 // No limit display on all pages
                 // Cookies not accepted make disclosure
-                if (cookieScripts) {
-                    cdHandler(disclosurePosition, privacyPolicyUri, cookieScripts);
-                } else {
-                    cdHandler(disclosurePosition, privacyPolicyUri);
-                }
+                cdHandler(options);
             }
         } else {
             // Cookies accepted run script wrapper
@@ -146,48 +120,59 @@ function detectIE789()
     return true;
 }
 
-function cdHandler(disclosurePosition, privacyPolicyUri, cookieScripts)
+function getDefaultAppsDisclosureText(cookieScripts)
 {
-    // Our main disclosure script
-    var displaySeconds = 10; // Alter this to remove the banner after number
-                                // of seconds
-    var epdApps;
-    var epdAppsCount;
-    var epdAppsDisclosure;
-    var epdPrivacyPolicyUri;
-    var epdDisclosurePosition;
-    var epdCSSPosition = 'fixed';
+    var scriptCount = cookieScripts.length;
+    var appsDisclosure = '';
+    if (scriptCount > 1) {
+        var epdAppsDisclosureText = '';
+        for ( var t = 0; t < scriptCount - 1; t++) {
+            epdAppsDisclosureText += cookieScripts[t] + ', ';
+        }
+        appsDisclosure = ' We also use ' + epdAppsDisclosureText.substring(0, epdAppsDisclosureText.length - 2) + ' and '
+                + cookieScripts[scriptCount - 1] + ' scripts, which all use cookies. ';
+    } else if (scriptCount > 0) {
+        appsDisclosure = ' We also use a ' + cookieScripts[0] + ' script which uses cookies.';
+    }
 
-    epdDisclosurePosition = disclosurePosition;
-    epdPrivacyPolicyUri = privacyPolicyUri;
+    return appsDisclosure;
+}
+
+function cdHandler(options)
+{
+    var privacyPolicyUri = options.policyuri || null;
+    var cookieScripts = options.thirdpartyapps || [];
+    var disclosurePosition = options.position || 'top';
+    // The number of seconds to display the banner
+    var displaySeconds = options.displaytimeout || 9999;
+    var cssPosition = options.cssposition || 'fixed';
+    var buttonLabel = options.buttonlabel || 'Continue';
+    
+    console.log(displaySeconds);
+
+    var defaultDisclosureHtml = 'On 26 May 2011, the rules about cookies on websites changed. This site uses cookies. ';
+    defaultDisclosureHtml += 'Some of the cookies we use are essential for parts of the site to operate and have already been set.';
+    defaultDisclosureHtml += getDefaultAppsDisclosureText(cookieScripts);
+    defaultDisclosureHtml += 'You may delete and block all cookies from this site, but parts of the site will not work. ';
+    if (privacyPolicyUri !== null) {
+        defaultDisclosureHtml += 'To find out more about cookies on this website, see our ';
+        defaultDisclosureHtml += '<a style="color:#ca0000;font-weight:bold;font-family:arial;font-size:14px;" href="';
+        defaultDisclosureHtml += privacyPolicyUri + '">privacy policy</a>.';
+    }
+    defaultDisclosureHtml += '<br/>';
+
+    var disclosureHtml = options.disclosureHtml || defaultDisclosureHtml;
+
+    disclosurePosition = disclosurePosition.toLowerCase();
 
     if (detectIE789()) {
         // In IE 8 & presumably lower, position:fixed does not work
         // IE 9 in compatibility mode also means script won't work
         // Means we need to force to top of viewport and set position absolute
-        epdDisclosurePosition = 'top';
-        epdCSSPosition = 'absolute';
+        disclosurePosition = 'top';
+        cssPosition = 'absolute';
     }
-
-    // What scripts must be declared, user passes these as comma delimited
-    // string
-    if (cookieScripts) {
-        epdApps = cookieScripts.split(',');
-        epdAppsCount = epdApps.length;
-        var epdAppsDisclosureText = '';
-        if (epdAppsCount > 1) {
-            for ( var t = 0; t < epdAppsCount - 1; t++) {
-                epdAppsDisclosureText += epdApps[t] + ', ';
-            }
-            epdAppsDisclosure = ' We also use ' + epdAppsDisclosureText.substring(0, epdAppsDisclosureText.length - 2) + ' and '
-                    + epdApps[epdAppsCount - 1] + ' scripts, which all use cookies. ';
-        } else {
-            epdAppsDisclosure = ' We also use a ' + epdApps[0] + ' script which uses cookies.';
-        }
-    } else {
-        epdAppsDisclosure = '';
-    }
-
+    
     // Create our overlay with message
     var divNode = document.createElement('div');
     divNode.setAttribute('id', 'epd');
@@ -195,26 +180,22 @@ function cdHandler(disclosurePosition, privacyPolicyUri, cookieScripts)
 
     // The disclosure narrative pretty much follows that on the Information
     // Commissioners Office website
-    var disclosure = '<div id="cookiesdirective" style="position:'
-            + epdCSSPosition
-            + ';'
-            + epdDisclosurePosition
-            + ':-300px;left:0px;width:100%;height:auto;background:#000000;opacity:.80; -ms-filter: alpha(opacity=80); filter: alpha(opacity=80);-khtml-opacity: .80; -moz-opacity: .80; color:#FFFFFF;font-family:arial;font-size:14px;text-align:center;z-index:1000;">';
-
+    var disclosure = '<div id="cookiesdirective" style="position:' + cssPosition + ';' + disclosurePosition;
+    disclosure += ':-300px;left:0px;width:100%;height:auto;background:#000000;opacity:.80; -ms-filter: alpha(opacity=80); ';
+    disclosure += 'filter: alpha(opacity=80);-khtml-opacity: .80; -moz-opacity: .80; color:#FFFFFF;font-family:arial;font-size:14px;';
+    disclosure += 'text-align:center;z-index:1000;">';
     disclosure += '<div style="position:relative;height:auto;width:90%;padding:15px;margin-left:auto;margin-right:auto;">';
-    disclosure += 'On 26 May 2011, the rules about cookies on websites changed. This site uses cookies. Some of the cookies we ';
-    disclosure += 'use are essential for parts of the site to operate and have already been set.' + epdAppsDisclosure
-            + ' You may delete and block all ';
-    disclosure += 'cookies from this site, but parts of the site will not work. To find out more about cookies on this ';
-    disclosure += 'website, see our <a style="color:#ca0000;font-weight:bold;font-family:arial;font-size:14px;" href="' + epdPrivacyPolicyUri
-            + '">privacy policy</a>.<br/><br/>';
-    disclosure += '<div id="epdnotick" style="color:#ca0000;display:none;margin:2px;"><span style="background:#cecece;padding:2px;">You must tick the "I accept cookies from this site" box to accept</span></div>'
-    disclosure += 'I accept cookies from this site <input type="checkbox" name="epdagree" id="epdagree" />&nbsp;';
-    disclosure += '<input type="submit" name="epdsubmit" id="epdsubmit" value="Continue"/><br/><br/></div></div>';
+    disclosure += disclosureHtml;
+    disclosure += '<div id="epdnotick" style="color:#ca0000;display:none;margin:2px;"><span style="background:#cecece;padding:2px;">';
+    disclosure += 'You must tick the "I accept cookies from this site" box to accept';
+    disclosure += '</span></div>';
+    disclosure += '<label for="epdagree">I accept cookies from this site</label>';
+    disclosure += ' <input type="checkbox" name="epdagree" id="epdagree" />&nbsp;';
+    disclosure += '<input type="submit" name="epdsubmit" id="epdsubmit" value="' + buttonLabel + '"/></div></div>';
     document.getElementById("epd").innerHTML = disclosure;
 
     // Bring our overlay in
-    if (epdDisclosurePosition.toLowerCase() == 'top') {
+    if (disclosurePosition == 'top') {
         // Serve from top of page
         $('#cookiesdirective').animate(
             { top : '0' },
