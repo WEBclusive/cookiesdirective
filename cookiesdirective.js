@@ -118,42 +118,7 @@ window.cookiesDirective = {};
     }
 
     /**
-     * Returns true if the browser can't support fixed positioning
-     * Private
-     * @returns {Boolean}
-     */
-    var detectIE789 = function () {
-        // Detect IE less than version 9.0
-        var version;
-        if (navigator.appName != 'Microsoft Internet Explorer') {
-            return false;
-        }
-        var userAgent = navigator.userAgent;
-        var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-        if (re.exec(userAgent) != null) {
-            version = parseFloat(RegExp.$1);
-        }
-
-        if (version <= 8.0) {
-            return true;
-        }
-        if (version != 9.0) {
-            return false;
-        }
-        if (document.compatMode != "BackCompat") {
-            return false;
-        }
-        // IE9 in quirks mode won't run the script properly, set to
-        // emulate IE8
-        var mA = document.createElement("meta");
-        mA.content = "IE=EmulateIE8";
-        document.getElementsByTagName('head')[0].appendChild(mA);
-        return true;
-    }
-
-    /**
      * Formats a string explaining which apps are used
-     * Private
      * @param array of strings
      * @returns string
      */
@@ -202,18 +167,9 @@ window.cookiesDirective = {};
         var buttonLabel = options.buttonLabel || 'Continue';
         var checkboxLabel = options.checkboxLabel || 'I accept cookies from this site';
         var agreementPromptText = options.agreementText || 'You must tick the "I accept cookies from this site" box to accept';
-        var redirectFlag = (options.redirect !== false) ? true : false;
         var disclosureHtml = options.disclosureHtml || getDefaultDisclosureHtml();
         var animationSettingsShow;
         var animationSettingsHide;
-
-        if (detectIE789()) {
-            // In IE 8 & presumably lower, position:fixed does not work
-            // IE 9 in compatibility mode also means script won't work
-            // Means we need to force to top of viewport and set position absolute
-            disclosurePosition = 'top';
-            cssPosition = 'absolute';
-        }
 
         // Create our overlay with message
         var divNode = document.createElement('div');
@@ -264,7 +220,7 @@ window.cookiesDirective = {};
                                 // Remove the elements from the DOM and reload page,
                                 // which should now fire our the scripts enclosed by our wrapper function
                                 $('#cookiesdirective').remove();
-                                if (redirectFlag) {
+                                if (options.redirect !== false) {
                                     location.reload(true);
                                 } else {
                                     cookiesDirectiveScriptWrapper();
@@ -294,7 +250,6 @@ window.cookiesDirective = {};
 
     /**
      * Read cookie with given name
-     * Private
      * @return string
      */
     var cdReadCookie = function (name) {
@@ -312,7 +267,6 @@ window.cookiesDirective = {};
 
     /**
      * Sets the cookie
-     * Private
      * @param name The name of the cookie
      * @param value The value of the cookie
      * @param days The days after which the cookie will expire
