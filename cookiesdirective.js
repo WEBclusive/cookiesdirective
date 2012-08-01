@@ -32,6 +32,11 @@ window.cookiesDirective = {};
             options = overrideOptions;
         }
 
+        // parse some generic parameters
+        options.position = options.position || 'top';
+        options.cssPosition = options.cssPosition || 'fixed';
+        options.displayTimeout = options.displayTimeout || 9999;
+
         // Start Test/Loader (improved in v1.1)
         var jQueryVersion = '1.5';
 
@@ -104,12 +109,12 @@ window.cookiesDirective = {};
 
                 cdCreateCookie('cookiesDisclosureCount', disclosureCount, 1);
                 if (displayTimes >= disclosureCount) {
-                    cdHandler(options);
+                    initBanner(options);
                 }
             } else {
                 // No limit display on all pages
                 // Cookies not accepted make disclosure
-                cdHandler(options);
+                initBanner(options);
             }
         } else {
             // Cookies accepted run script wrapper
@@ -160,10 +165,7 @@ window.cookiesDirective = {};
     /**
      * Handles showing/hiding the banner and related events
      */
-    var cdHandler = function () {
-        var disclosurePosition = options.position || 'top';
-        var displaySeconds = options.displayTimeout || 9999;
-        var cssPosition = options.cssPosition || 'fixed';
+    var initBanner = function () {
         var buttonLabel = options.buttonLabel || 'Continue';
         var checkboxLabel = options.checkboxLabel || 'I accept cookies from this site';
         var agreementPromptText = options.agreementText || 'You must tick the "I accept cookies from this site" box to accept';
@@ -177,7 +179,7 @@ window.cookiesDirective = {};
         document.body.appendChild(divNode);
 
         // The disclosure narrative pretty much follows that on the Information  Commissioners Office website
-        var disclosure = '<div id="cookiesdirective" style="position:' + cssPosition + ';' + disclosurePosition;
+        var disclosure = '<div id="cookiesdirective" style="position:' + options.cssPosition + ';' + options.position;
         disclosure += ':-300px;left:0px;padding:5px;width:100%;height:auto;background:#000000;opacity:.90; -ms-filter: alpha(opacity=90); ';
         disclosure += 'filter: alpha(opacity=90);-khtml-opacity: .90; -moz-opacity: .90; color:#FFFFFF;font-family:arial;font-size:14px;';
         disclosure += 'text-align:center;z-index:1000;">';
@@ -191,20 +193,15 @@ window.cookiesDirective = {};
         disclosure += '<input type="submit" name="epdsubmit" id="epdsubmit" value="' + buttonLabel + '" style="margin:0;padding:0" /></div></div>';
         document.getElementById("epd").innerHTML = disclosure;
 
-        switch (disclosurePosition.toLowerCase()) {
-            case 'bottom':
-                animationSettingsShow = { bottom: '0' };
-                animationSettingsHide = { bottom: '-300' }; 
-                break;
-            case 'top':
-            default:
-                animationSettingsShow = { top: '0' };
-                animationSettingsHide = { top: '-300' }; 
-                break;
-        }
+        showBanner();
+    }
 
+    /**
+     * Shows the banner
+     */
+    var showBanner = function () {
         $('#cookiesdirective').animate(
-            animationSettingsShow,
+            (options.position == 'bottom') ? { bottom: '0' } : { top: '0'},
             1000,
             function() {
                 // Overlay is displayed, set a listener on the button
@@ -213,20 +210,7 @@ window.cookiesDirective = {};
                         // Set a cookie to prevent this being displayed again
                         cdCreateCookie('cookiesDirective', 1, 365);
                         // Close the overlay
-                        $('#cookiesdirective').animate(
-                            animationSettingsHide,
-                            1000,
-                            function() {
-                                // Remove the elements from the DOM and reload page,
-                                // which should now fire our the scripts enclosed by our wrapper function
-                                $('#cookiesdirective').remove();
-                                if (options.redirect !== false) {
-                                    location.reload(true);
-                                } else {
-                                    cookiesDirectiveScriptWrapper();
-                                }
-                            }
-                        );
+                        closeBanner();
                     } else {
                         // We need the box checked we want "explicit consent",
                         // display message
@@ -234,16 +218,37 @@ window.cookiesDirective = {};
                     }
                 });
 
-                // Set a timer to remove the warning after 10 seconds
-                setTimeout(function() {
-                    $('#cookiesdirective').animate(
-                        { opacity : '0' },
-                        2000,
-                        function() {
-                            $('#cookiesdirective').css(animationSettingsHide);
-                        }
-                    );
-                }, displaySeconds * 1000);
+                // Set a timer to remove the warning after options.displayTimeout seconds
+                setTimeout(hideBanner, options.displayTimeout * 1000);
+            }
+        );
+    }
+
+    var hideBanner = function () {
+        var animationSettingsHide = (options.position == 'bottom') ? { top: '-300' } : { bottom: '-300' };
+
+        $('#cookiesdirective').animate(
+            { opacity : '0' },
+            2000,
+            function() {
+                $('#cookiesdirective').css(animationSettingsHide);
+            }
+        );
+    }
+
+    var closeBanner = function () {
+        $('#cookiesdirective').animate(
+            (options.position == 'bottom') ? { bottom: '-300' } : { top: '-300' },
+            1000,
+            function() {
+                // Remove the elements from the DOM and reload page,
+                // which should now fire our the scripts enclosed by our wrapper function
+                $('#cookiesdirective').remove();
+                if (options.redirect !== false) {
+                    location.reload(true);
+                } else {
+                    cookiesDirectiveScriptWrapper();
+                }
             }
         );
     }
