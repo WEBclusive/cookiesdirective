@@ -1,18 +1,23 @@
-/* Cookies Directive Disclosure Script
- * Version: 1.5
- * Author: Ollie Phillips
- * 20 June 2012
+/**
+ * Cookies Directive Disclosure Script
+ * 
+ * Accepts an option object with all params optional.
+ * Valid params are:
+ * 
+ * @param repeatcount the number of times to display the banner before giving up
+ * @param policyuri the uri to point to for reading the policy. if not set no link will be printed
+ * @param thirdpartyapps array of string with the 3rd party apps that use cookies (for use by default texts)
+ * @param position where to place the banner (top or bottom)
+ * @param displaytimeout the number of seconds to display the banner each time
+ * @param cssPosition 'fixed' or 'absolute'
+ * @param disclosureHtml overrides the default text (apart from the checkbox and button) 
+ * @param buttonLabel the text of the submit button
+ * @param checkboxLabel the text next to the checkbox
  */
 function cookiesDirective(options)
 {
     if (typeof options == 'undefined') {
-        options = {
-            repeatcount: 0,
-            policyuri: null,
-            thirdpartyapps: [],
-            position: 'top',
-            displaytimeout: -1
-        };
+        options = {};
     }
 
     var displayTimes = options.repeatcount || 0;
@@ -33,8 +38,7 @@ function cookiesDirective(options)
                 // Safe to proceed
                 if (!cdReadCookie('cookiesDirective')) {
                     if (displayTimes > 0) {
-                        // We want to limit the number of times this is
-                        // displayed
+                        // We want to limit the number of times this is displayed
                         // Record the view
                         if (!cdReadCookie('cookiesDisclosureCount')) {
                             cdCreateCookie('cookiesDisclosureCount', 1, 1);
@@ -97,9 +101,9 @@ function detectIE789()
     if (navigator.appName != 'Microsoft Internet Explorer') {
         return false;
     }
-    var ua = navigator.userAgent;
+    var userAgent = navigator.userAgent;
     var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-    if (re.exec(ua) != null) {
+    if (re.exec(userAgent) != null) {
         version = parseFloat(RegExp.$1);
     }
 
@@ -129,10 +133,10 @@ function getDefaultAppsDisclosureText(cookieScripts)
         for ( var t = 0; t < scriptCount - 1; t++) {
             epdAppsDisclosureText += cookieScripts[t] + ', ';
         }
-        appsDisclosure = ' We also use ' + epdAppsDisclosureText.substring(0, epdAppsDisclosureText.length - 2) + ' and '
+        appsDisclosure = 'We also use ' + epdAppsDisclosureText.substring(0, epdAppsDisclosureText.length - 2) + ' and '
                 + cookieScripts[scriptCount - 1] + ' scripts, which all use cookies. ';
     } else if (scriptCount > 0) {
-        appsDisclosure = ' We also use a ' + cookieScripts[0] + ' script which uses cookies.';
+        appsDisclosure = 'We also use a ' + cookieScripts[0] + ' script which uses cookies.';
     }
 
     return appsDisclosure;
@@ -147,11 +151,12 @@ function cdHandler(options)
     var displaySeconds = options.displaytimeout || 9999;
     var cssPosition = options.cssposition || 'fixed';
     var buttonLabel = options.buttonlabel || 'Continue';
-    
-    console.log(displaySeconds);
+    var checkboxLabel = options.checkboxlabel || 'I accept cookies from this site';
+    var animationSettingsShow,
+        animationSettingsHide;
 
     var defaultDisclosureHtml = 'On 26 May 2011, the rules about cookies on websites changed. This site uses cookies. ';
-    defaultDisclosureHtml += 'Some of the cookies we use are essential for parts of the site to operate and have already been set.';
+    defaultDisclosureHtml += 'Some of the cookies we use are essential for parts of the site to operate and have already been set. ';
     defaultDisclosureHtml += getDefaultAppsDisclosureText(cookieScripts);
     defaultDisclosureHtml += 'You may delete and block all cookies from this site, but parts of the site will not work. ';
     if (privacyPolicyUri !== null) {
@@ -181,103 +186,69 @@ function cdHandler(options)
     // The disclosure narrative pretty much follows that on the Information
     // Commissioners Office website
     var disclosure = '<div id="cookiesdirective" style="position:' + cssPosition + ';' + disclosurePosition;
-    disclosure += ':-300px;left:0px;width:100%;height:auto;background:#000000;opacity:.80; -ms-filter: alpha(opacity=80); ';
-    disclosure += 'filter: alpha(opacity=80);-khtml-opacity: .80; -moz-opacity: .80; color:#FFFFFF;font-family:arial;font-size:14px;';
+    disclosure += ':-300px;left:0px;width:100%;height:auto;background:#000000;opacity:.90; -ms-filter: alpha(opacity=90); ';
+    disclosure += 'filter: alpha(opacity=90);-khtml-opacity: .90; -moz-opacity: .90; color:#FFFFFF;font-family:arial;font-size:14px;';
     disclosure += 'text-align:center;z-index:1000;">';
-    disclosure += '<div style="position:relative;height:auto;width:90%;padding:15px;margin-left:auto;margin-right:auto;">';
+    disclosure += '<div style="position:relative;height:auto;width:90%;margin-left:auto;margin-right:auto;">';
     disclosure += disclosureHtml;
     disclosure += '<div id="epdnotick" style="color:#ca0000;display:none;margin:2px;"><span style="background:#cecece;padding:2px;">';
     disclosure += 'You must tick the "I accept cookies from this site" box to accept';
     disclosure += '</span></div>';
-    disclosure += '<label for="epdagree">I accept cookies from this site</label>';
+    disclosure += '<label for="epdagree">' + checkboxLabel + '</label>';
     disclosure += ' <input type="checkbox" name="epdagree" id="epdagree" />&nbsp;';
     disclosure += '<input type="submit" name="epdsubmit" id="epdsubmit" value="' + buttonLabel + '"/></div></div>';
     document.getElementById("epd").innerHTML = disclosure;
 
-    // Bring our overlay in
-    if (disclosurePosition == 'top') {
-        // Serve from top of page
-        $('#cookiesdirective').animate(
-            { top : '0' },
-            1000,
-            function() {
-                // Overlay is displayed, set a listener on the button
-                $('#epdsubmit').click(function() {
-                    if (document.getElementById('epdagree').checked) {
-                        // Set a cookie to prevent this being displayed again
-                        cdCreateCookie('cookiesDirective', 1, 365);
-                        // Close the overlay
-                        $('#cookiesdirective').animate(
-                            { top : '-300'},
-                            1000,
-                            function() {
-                                // Remove the elements from the DOM and reload page,
-                                // which should now
-                                // fire our the scripts enclosed by our wrapper function
-                                $('#cookiesdirective').remove();
-                                location.reload(true);
-                            }
-                        );
-                    } else {
-                        // We need the box checked we want "explicit consent",
-                        // display message
-                        document.getElementById('epdnotick').style.display = 'block';
-                    }
-                });
+    switch (disclosurePosition) {
+        case 'bottom':
+            animationSettingsShow = { bottom: '0' };
+            animationSettingsHide = { bottom: '-300' }; 
+            break;
+        case 'top':
+        default:
+            animationSettingsShow = { top: '0' };
+            animationSettingsHide = { top: '-300' }; 
+            break;
+    }
 
-                // Set a timer to remove the warning after 10 seconds
-                setTimeout(function() {
-                    $('#cookiesdirective').animate({
-                        opacity : '0'
-                    }, 2000, function() {
-                        $('#cookiesdirective').css('top', '-300px');
-                    });
-                }, displaySeconds * 1000);
-            }
-        );
-    } else {
-        // Serve from bottom of page
-        $('#cookiesdirective').animate(
-            { bottom : '0' },
-            1000,
-            function() {
-                // Overlay is displayed, set a listener on the button
-                $('#epdsubmit').click(function() {
-                    if (document.getElementById('epdagree').checked) {
-                        // Set a cookie to prevent this being displayed again
-                        cdCreateCookie('cookiesDirective', 1, 365);
-                        // Close the overlay
-                        $('#cookiesdirective').animate(
-                            { bottom : '-300' },
-                            1000,
-                            function() {
-                                // Remove the elements from the DOM and reload page,
-                                // which should now
-                                // fire our the scripts enclosed by our wrapper function
-                                $('#cookiesdirective').remove();
-                                location.reload(true);
-                            }
-                        );
-                    } else {
-                        // We need the box checked we want "explicit consent",
-                        // display message
-                        document.getElementById('epdnotick').style.display = 'block';
-                    }
-                });
-
-                // Set a timer to remove the warning after 10 seconds
-                setTimeout(function() {
+    $('#cookiesdirective').animate(
+        animationSettingsShow,
+        1000,
+        function() {
+            // Overlay is displayed, set a listener on the button
+            $('#epdsubmit').click(function() {
+                if (document.getElementById('epdagree').checked) {
+                    // Set a cookie to prevent this being displayed again
+                    cdCreateCookie('cookiesDirective', 1, 365);
+                    // Close the overlay
                     $('#cookiesdirective').animate(
-                        { opacity : '0' },
-                        2000,
+                        animationSettingsHide,
+                        1000,
                         function() {
-                            $('#cookiesdirective').css('bottom', '-300px');
+                            // Remove the elements from the DOM and reload page,
+                            // which should now
+                            // fire our the scripts enclosed by our wrapper function
+                            $('#cookiesdirective').remove();
+                            location.reload(true);
                         }
                     );
-                }, displaySeconds * 1000);
-            }
-        );
-    }
+                } else {
+                    // We need the box checked we want "explicit consent",
+                    // display message
+                    document.getElementById('epdnotick').style.display = 'block';
+                }
+            });
+
+            // Set a timer to remove the warning after 10 seconds
+            setTimeout(function() {
+                $('#cookiesdirective').animate({
+                    opacity : '0'
+                }, 2000, function() {
+                    $('#cookiesdirective').css('top', '-300px');
+                });
+            }, displaySeconds * 1000);
+        }
+    );
 }
 
 function cdScriptAppend(scriptUri, myLocation)
