@@ -17,6 +17,11 @@
  * @param domain The domain to set the cookie to
  * @param redirect Whether to redirect after accepting cookies or attempt to run js directly
  */
+
+/**
+ * Constructor
+ * Public
+ */
 function cookiesDirective(options)
 {
     if (typeof options == 'undefined') {
@@ -28,7 +33,6 @@ function cookiesDirective(options)
 
     // Test for JQuery and load if not available
     if (window.jQuery === undefined || window.jQuery.fn.jquery < jQueryVersion) {
-
         var s = document.createElement("script");
         s.src = "http://ajax.googleapis.com/ajax/libs/jquery/" + jQueryVersion + "/jquery.min.js";
         s.type = "text/javascript";
@@ -45,6 +49,11 @@ function cookiesDirective(options)
     }
 }
 
+/**
+ * The main app logic
+ * Private
+ * @param options
+ */
 function cookiesDirectiveMain(options)
 {
     var disclosureCount;
@@ -79,6 +88,11 @@ function cookiesDirectiveMain(options)
     }
 }
 
+/**
+ * Returns true if the browser can't support fixed positioning
+ * Private
+ * @returns {Boolean}
+ */
 function detectIE789()
 {
     // Detect IE less than version 9.0
@@ -109,6 +123,12 @@ function detectIE789()
     return true;
 }
 
+/**
+ * Formats a string explaining which apps are used
+ * Private
+ * @param array of strings
+ * @returns string
+ */
 function getDefaultAppsDisclosureText(cookieScripts)
 {
     var scriptCount = cookieScripts.length;
@@ -127,6 +147,11 @@ function getDefaultAppsDisclosureText(cookieScripts)
     return appsDisclosure;
 }
 
+/**
+ * Handles showing/hiding the banner and related events
+ * Private
+ * @param options
+ */
 function cdHandler(options)
 {
     var cookieDomain = options.domain || null;
@@ -248,6 +273,11 @@ function cdHandler(options)
     );
 }
 
+/**
+ * Appends a script in the html head.
+ * @param scriptUri
+ * @param myLocation
+ */
 function cdScriptAppend(scriptUri, myLocation)
 {
     // Reworked in Version 1.1 - needed a more robust loader
@@ -273,8 +303,15 @@ function cdScriptAppend(scriptUri, myLocation)
     }
 }
 
-// Simple Cookie functions from http://www.quirksmode.org/js/cookies.html -
-// thanks!
+/**
+ * Simple cookie functions from http://www.quirksmode.org/js/cookies.html
+ */
+
+/**
+ * Read cookie with given name
+ * Private
+ * @return string
+ */
 function cdReadCookie(name)
 {
     console.log('reading', name);
@@ -290,6 +327,14 @@ function cdReadCookie(name)
     return null;
 }
 
+/**
+ * Sets the cookie
+ * Private
+ * @param name The name of the cookie
+ * @param value The value of the cookie
+ * @param days The days after which the cookie will expire
+ * @param domain The domain to set the cookie to
+ */
 function cdCreateCookie(name, value, days, domain)
 {
     var domainString = '';
