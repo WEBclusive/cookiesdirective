@@ -22,16 +22,15 @@ window.cookiesDirective = {};
 
 (function() {
     var app = window.cookiesDirective;
+    var options = {};
 
     /**
      * Constructor
      */
-    app.init = function (options)
-    {
-        if (typeof options == 'undefined') {
-            options = {};
+    app.init = function (overrideOptions) {
+        if (typeof overrideOptions != 'undefined') {
+            options = overrideOptions;
         }
-        this.options = options;
 
         // Start Test/Loader (improved in v1.1)
         var jQueryVersion = '1.5';
@@ -44,13 +43,13 @@ window.cookiesDirective = {};
             s.onload = s.onreadystatechange = function() {
                 if ((!s.readyState || s.readyState == "loaded" || s.readyState == "complete")) {
                     // Safe to proceed
-                    cookiesDirectiveMain(options);
+                    cookiesDirectiveMain();
                 }
             }
             document.getElementsByTagName("head")[0].appendChild(s);
         } else {
             // We have JQuery and right version
-            cookiesDirectiveMain(options);
+            cookiesDirectiveMain();
         }
     }
 
@@ -85,9 +84,8 @@ window.cookiesDirective = {};
 
     /**
      * The main app logic
-     * @param options
      */
-    var cookiesDirectiveMain = function (options) {
+    var cookiesDirectiveMain = function () {
         var disclosureCount;
         var displayTimes = options.repeatCount || 0;
         var cookieDomain = options.domain || null;
@@ -178,10 +176,8 @@ window.cookiesDirective = {};
 
     /**
      * Handles showing/hiding the banner and related events
-     * Private
-     * @param options
      */
-    var cdHandler = function (options) {
+    var cdHandler = function () {
         var cookieDomain = options.domain || null;
         var privacyPolicyUri = options.policyUri || null;
         var cookieScripts = options.thirdPartyApps || [];
