@@ -88,7 +88,6 @@ window.cookiesDirective = {};
     var cookiesDirectiveMain = function () {
         var disclosureCount;
         var displayTimes = options.repeatCount || 0;
-        var cookieDomain = options.domain || null;
 
         if (!cdReadCookie('cookiesDirective')) {
             if (displayTimes > 0) {
@@ -103,7 +102,7 @@ window.cookiesDirective = {};
                     disclosureCount++;
                 }
 
-                cdCreateCookie('cookiesDisclosureCount', disclosureCount, 1, cookieDomain);
+                cdCreateCookie('cookiesDisclosureCount', disclosureCount, 1);
                 if (displayTimes >= disclosureCount) {
                     cdHandler(options);
                 }
@@ -158,7 +157,8 @@ window.cookiesDirective = {};
      * @param array of strings
      * @returns string
      */
-    var getDefaultAppsDisclosureText = function (cookieScripts) {
+    var getDefaultAppsDisclosureText = function () {
+        var cookieScripts = options.thirdPartyApps || [];
         var scriptCount = cookieScripts.length;
         var appsDisclosure = '';
         if (scriptCount > 1) {
@@ -175,42 +175,37 @@ window.cookiesDirective = {};
     }
 
     /**
+     * Returns the default text to print before the checkbox
+     * @return string
+     */
+    var getDefaultDisclosureHtml = function () {
+        var html = 'On 26 May 2011, the rules about cookies on websites changed. This site uses cookies. ';
+        html += 'Some of the cookies we use are essential for parts of the site to operate and have already been set. ';
+        html += getDefaultAppsDisclosureText();
+        html += 'You may delete and block all cookies from this site, but parts of the site will not work. ';
+        if (options.policyUri) {
+            html += 'To find out more about cookies on this website, see our ';
+            html += '<a style="color:#ca0000;font-weight:bold;font-family:arial;font-size:14px;" href="';
+            html += options.policyUri + '">privacy policy</a>.';
+        }
+        html += '<br/>';
+        return html;
+    }
+
+    /**
      * Handles showing/hiding the banner and related events
      */
     var cdHandler = function () {
-        var cookieDomain = options.domain || null;
-        var privacyPolicyUri = options.policyUri || null;
-        var cookieScripts = options.thirdPartyApps || [];
         var disclosurePosition = options.position || 'top';
-        // The number of seconds to display the banner
         var displaySeconds = options.displayTimeout || 9999;
         var cssPosition = options.cssPosition || 'fixed';
         var buttonLabel = options.buttonLabel || 'Continue';
         var checkboxLabel = options.checkboxLabel || 'I accept cookies from this site';
         var agreementPromptText = options.agreementText || 'You must tick the "I accept cookies from this site" box to accept';
-        var redirectFlag = true; 
+        var redirectFlag = (options.redirect !== false) ? true : false;
+        var disclosureHtml = options.disclosureHtml || getDefaultDisclosureHtml();
         var animationSettingsShow;
         var animationSettingsHide;
-        var disclosureHtml;
-
-        if (typeof options.redirect !== 'undefined') {
-            redirectFlag = options.redirect;
-        }
-
-        var defaultDisclosureHtml = 'On 26 May 2011, the rules about cookies on websites changed. This site uses cookies. ';
-        defaultDisclosureHtml += 'Some of the cookies we use are essential for parts of the site to operate and have already been set. ';
-        defaultDisclosureHtml += getDefaultAppsDisclosureText(cookieScripts);
-        defaultDisclosureHtml += 'You may delete and block all cookies from this site, but parts of the site will not work. ';
-        if (privacyPolicyUri !== null) {
-            defaultDisclosureHtml += 'To find out more about cookies on this website, see our ';
-            defaultDisclosureHtml += '<a style="color:#ca0000;font-weight:bold;font-family:arial;font-size:14px;" href="';
-            defaultDisclosureHtml += privacyPolicyUri + '">privacy policy</a>.';
-        }
-        defaultDisclosureHtml += '<br/>';
-
-        disclosureHtml = options.disclosureHtml || defaultDisclosureHtml;
-
-        disclosurePosition = disclosurePosition.toLowerCase();
 
         if (detectIE789()) {
             // In IE 8 & presumably lower, position:fixed does not work
@@ -240,7 +235,7 @@ window.cookiesDirective = {};
         disclosure += '<input type="submit" name="epdsubmit" id="epdsubmit" value="' + buttonLabel + '" style="margin:0;padding:0" /></div></div>';
         document.getElementById("epd").innerHTML = disclosure;
 
-        switch (disclosurePosition) {
+        switch (disclosurePosition.toLowerCase()) {
             case 'bottom':
                 animationSettingsShow = { bottom: '0' };
                 animationSettingsHide = { bottom: '-300' }; 
@@ -260,7 +255,7 @@ window.cookiesDirective = {};
                 $('#epdsubmit').click(function() {
                     if (document.getElementById('epdagree').checked) {
                         // Set a cookie to prevent this being displayed again
-                        cdCreateCookie('cookiesDirective', 1, 365, cookieDomain);
+                        cdCreateCookie('cookiesDirective', 1, 365);
                         // Close the overlay
                         $('#cookiesdirective').animate(
                             animationSettingsHide,
@@ -321,15 +316,10 @@ window.cookiesDirective = {};
      * @param name The name of the cookie
      * @param value The value of the cookie
      * @param days The days after which the cookie will expire
-     * @param domain The domain to set the cookie to
      */
-    var cdCreateCookie = function (name, value, days, domain) {
-        var domainString = '';
+    var cdCreateCookie = function (name, value, days) {
         var expires = '';
-
-        if (typeof domain !== 'undefined') {
-            domainString = '; domain=' + domain;
-        }
+        var domainString = options.domain ? '; domain=' + options.domain : '';
 
         if (days) {
             var date = new Date();
