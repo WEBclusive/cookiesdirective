@@ -4,15 +4,16 @@
  * Accepts an option object with all params optional.
  * Valid params are:
  * 
- * @param repeatcount the number of times to display the banner before giving up
- * @param policyuri the uri to point to for reading the policy. if not set no link will be printed
- * @param thirdpartyapps array of string with the 3rd party apps that use cookies (for use by default texts)
- * @param position where to place the banner (top or bottom)
- * @param displaytimeout the number of seconds to display the banner each time
- * @param cssPosition 'fixed' or 'absolute'
- * @param disclosureHtml overrides the default text (apart from the checkbox and button) 
- * @param buttonLabel the text of the submit button
- * @param checkboxLabel the text next to the checkbox
+ * @param repeatCount The number of times to display the banner before giving up
+ * @param policyUri The uri to point to for reading the policy. if not set no link will be printed
+ * @param thirdPartyApps Array of strings with the 3rd party apps that use cookies (for use by default texts)
+ * @param position Where to place the banner (top or bottom)
+ * @param displayTimeout The number of seconds to display the banner each time
+ * @param cssPosition Either 'fixed' or 'absolute'
+ * @param disclosureHtml Overrides the default text (apart from the checkbox and button) 
+ * @param buttonLabel The text of the submit button
+ * @param checkboxLabel The text next to the checkbox
+ * @param agreementText The text reminding the user to tick the checkbox
  */
 function cookiesDirective(options)
 {
@@ -20,7 +21,7 @@ function cookiesDirective(options)
         options = {};
     }
 
-    var displayTimes = options.repeatcount || 0;
+    var displayTimes = options.repeatCount || 0;
 
     // Start Test/Loader (improved in v1.1)
     var jQueryVersion = '1.5';
@@ -144,14 +145,15 @@ function getDefaultAppsDisclosureText(cookieScripts)
 
 function cdHandler(options)
 {
-    var privacyPolicyUri = options.policyuri || null;
-    var cookieScripts = options.thirdpartyapps || [];
+    var privacyPolicyUri = options.policyUri || null;
+    var cookieScripts = options.thirdPartyApps || [];
     var disclosurePosition = options.position || 'top';
     // The number of seconds to display the banner
-    var displaySeconds = options.displaytimeout || 9999;
-    var cssPosition = options.cssposition || 'fixed';
-    var buttonLabel = options.buttonlabel || 'Continue';
-    var checkboxLabel = options.checkboxlabel || 'I accept cookies from this site';
+    var displaySeconds = options.displayTimeout || 9999;
+    var cssPosition = options.cssPosition || 'fixed';
+    var buttonLabel = options.buttonLabel || 'Continue';
+    var checkboxLabel = options.checkboxLabel || 'I accept cookies from this site';
+    var agreementPromptText = options.agreementText || 'You must tick the "I accept cookies from this site" box to accept';
     var animationSettingsShow,
         animationSettingsHide;
 
@@ -183,7 +185,7 @@ function cdHandler(options)
     divNode.setAttribute('id', 'epd');
     document.body.appendChild(divNode);
 
-    // The disclosure narrative pretty much follows that on the Information Commissioners Office website
+    // The disclosure narrative pretty much follows that on the Information  Commissioners Office website
     var disclosure = '<div id="cookiesdirective" style="position:' + cssPosition + ';' + disclosurePosition;
     disclosure += ':-300px;left:0px;width:100%;height:auto;background:#000000;opacity:.90; -ms-filter: alpha(opacity=90); ';
     disclosure += 'filter: alpha(opacity=90);-khtml-opacity: .90; -moz-opacity: .90; color:#FFFFFF;font-family:arial;font-size:14px;';
@@ -191,7 +193,7 @@ function cdHandler(options)
     disclosure += '<div style="position:relative;height:auto;width:90%;margin-left:auto;margin-right:auto;">';
     disclosure += disclosureHtml;
     disclosure += '<div id="epdnotick" style="color:#ca0000;display:none;margin:2px;"><span style="background:#cecece;padding:2px;">';
-    disclosure += 'You must tick the "I accept cookies from this site" box to accept';
+    disclosure += agreementPromptText;
     disclosure += '</span></div>';
     disclosure += '<label for="epdagree">' + checkboxLabel + '</label>';
     disclosure += ' <input type="checkbox" name="epdagree" id="epdagree" />&nbsp;';
