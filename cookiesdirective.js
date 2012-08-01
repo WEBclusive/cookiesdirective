@@ -183,8 +183,7 @@ function cdHandler(options)
     divNode.setAttribute('id', 'epd');
     document.body.appendChild(divNode);
 
-    // The disclosure narrative pretty much follows that on the Information
-    // Commissioners Office website
+    // The disclosure narrative pretty much follows that on the Information Commissioners Office website
     var disclosure = '<div id="cookiesdirective" style="position:' + cssPosition + ';' + disclosurePosition;
     disclosure += ':-300px;left:0px;width:100%;height:auto;background:#000000;opacity:.90; -ms-filter: alpha(opacity=90); ';
     disclosure += 'filter: alpha(opacity=90);-khtml-opacity: .90; -moz-opacity: .90; color:#FFFFFF;font-family:arial;font-size:14px;';
@@ -226,8 +225,7 @@ function cdHandler(options)
                         1000,
                         function() {
                             // Remove the elements from the DOM and reload page,
-                            // which should now
-                            // fire our the scripts enclosed by our wrapper function
+                            // which should now fire our the scripts enclosed by our wrapper function
                             $('#cookiesdirective').remove();
                             location.reload(true);
                         }
@@ -241,11 +239,13 @@ function cdHandler(options)
 
             // Set a timer to remove the warning after 10 seconds
             setTimeout(function() {
-                $('#cookiesdirective').animate({
-                    opacity : '0'
-                }, 2000, function() {
-                    $('#cookiesdirective').css('top', '-300px');
-                });
+                $('#cookiesdirective').animate(
+                    { opacity : '0' },
+                    2000,
+                    function() {
+                        $('#cookiesdirective').css(animationSettingsHide);
+                    }
+                );
             }, displaySeconds * 1000);
         }
     );
