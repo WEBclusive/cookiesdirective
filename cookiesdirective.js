@@ -14,14 +14,13 @@
  * @param buttonLabel The text of the submit button
  * @param checkboxLabel The text next to the checkbox
  * @param agreementText The text reminding the user to tick the checkbox
+ * @param domain The domain to set the cookie to
  */
 function cookiesDirective(options)
 {
     if (typeof options == 'undefined') {
         options = {};
     }
-
-    var displayTimes = options.repeatCount || 0;
 
     // Start Test/Loader (improved in v1.1)
     var jQueryVersion = '1.5';
@@ -33,66 +32,50 @@ function cookiesDirective(options)
         s.src = "http://ajax.googleapis.com/ajax/libs/jquery/" + jQueryVersion + "/jquery.min.js";
         s.type = "text/javascript";
         s.onload = s.onreadystatechange = function() {
-
             if ((!s.readyState || s.readyState == "loaded" || s.readyState == "complete")) {
-
                 // Safe to proceed
-                if (!cdReadCookie('cookiesDirective')) {
-                    if (displayTimes > 0) {
-                        // We want to limit the number of times this is displayed
-                        // Record the view
-                        if (!cdReadCookie('cookiesDisclosureCount')) {
-                            cdCreateCookie('cookiesDisclosureCount', 1, 1);
-                        } else {
-                            var disclosureCount = cdReadCookie('cookiesDisclosureCount');
-                            disclosureCount++;
-                            cdCreateCookie('cookiesDisclosureCount', disclosureCount, 1);
-                        }
-
-                        if (displayTimes >= cdReadCookie('cookiesDisclosureCount')) {
-                            cdHandler(options);
-                        }
-                    } else {
-                        // No limit display on all pages
-                        // Cookies not accepted make disclosure
-                        cdHandler(options);
-                    }
-                } else {
-                    // Cookies accepted run script wrapper
-                    cookiesDirectiveScriptWrapper();
-                }
+                cookiesDirectiveMain(options);
             }
         }
         document.getElementsByTagName("head")[0].appendChild(s);
     } else {
         // We have JQuery and right version
-        if (!cdReadCookie('cookiesDirective')) {
-            if (displayTimes > 0) {
-                // We want to limit the number of times this is displayed
-                // Record the view
-                if (!cdReadCookie('cookiesDisclosureCount')) {
-                    cdCreateCookie('cookiesDisclosureCount', 1, 1);
-                } else {
-                    var disclosureCount = cdReadCookie('cookiesDisclosureCount');
-                    disclosureCount++;
-                    cdCreateCookie('cookiesDisclosureCount', disclosureCount, 1);
-                }
+        cookiesDirectiveMain(options);
+    }
+}
 
-                if (displayTimes >= cdReadCookie('cookiesDisclosureCount')) {
-                    // Cookies not accepted make disclosure
-                    cdHandler(options);
-                }
+function cookiesDirectiveMain(options)
+{
+    var disclosureCount;
+    var displayTimes = options.repeatCount || 0;
+    var cookieDomain = options.domain || null;
+
+    if (!cdReadCookie('cookiesDirective')) {
+        if (displayTimes > 0) {
+            // We want to limit the number of times this is displayed
+            // Record the view
+            var cookieCount = cdReadCookie('cookiesDisclosureCount');
+
+            if (! cookieCount) {
+                disclosureCount = 1;
             } else {
-                // No limit display on all pages
-                // Cookies not accepted make disclosure
+                disclosureCount = cookieCount;
+                disclosureCount++;
+            }
+
+            cdCreateCookie('cookiesDisclosureCount', disclosureCount, 1, cookieDomain);
+            if (displayTimes >= disclosureCount) {
                 cdHandler(options);
             }
         } else {
-            // Cookies accepted run script wrapper
-            cookiesDirectiveScriptWrapper();
+            // No limit display on all pages
+            // Cookies not accepted make disclosure
+            cdHandler(options);
         }
+    } else {
+        // Cookies accepted run script wrapper
+        cookiesDirectiveScriptWrapper();
     }
-    // End Test/Loader
 }
 
 function detectIE789()
@@ -145,6 +128,7 @@ function getDefaultAppsDisclosureText(cookieScripts)
 
 function cdHandler(options)
 {
+    var cookieDomain = options.domain || null;
     var privacyPolicyUri = options.policyUri || null;
     var cookieScripts = options.thirdPartyApps || [];
     var disclosurePosition = options.position || 'top';
@@ -220,7 +204,7 @@ function cdHandler(options)
             $('#epdsubmit').click(function() {
                 if (document.getElementById('epdagree').checked) {
                     // Set a cookie to prevent this being displayed again
-                    cdCreateCookie('cookiesDirective', 1, 365);
+                    cdCreateCookie('cookiesDirective', 1, 365, cookieDomain);
                     // Close the overlay
                     $('#cookiesdirective').animate(
                         animationSettingsHide,
@@ -282,6 +266,7 @@ function cdScriptAppend(scriptUri, myLocation)
 // thanks!
 function cdReadCookie(name)
 {
+    console.log('reading', name);
     var nameEQ = name + "=";
     var ca = document.cookie.split(';');
     for ( var i = 0; i < ca.length; i++) {
@@ -294,14 +279,22 @@ function cdReadCookie(name)
     return null;
 }
 
-function cdCreateCookie(name, value, days)
+function cdCreateCookie(name, value, days, domain)
 {
+    var domainString = '';
+    var expires = '';
+    
+    if (typeof domain !== 'undefined') {
+        domainString = '; domain=' + domain;
+    }
+    
     if (days) {
         var date = new Date();
         date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        var expires = "; expires=" + date.toGMTString();
-    } else {
-        var expires = "";
+        expires = "; expires=" + date.toGMTString();
     }
-    document.cookie = name + "=" + value + expires + "; path=/";
+    
+    var cookie = name + "=" + value + expires + domainString + "; path=/";
+    console.log('writing', cookie);
+    document.cookie = cookie;
 }
