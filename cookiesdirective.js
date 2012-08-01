@@ -88,6 +88,13 @@ window.cookiesDirective = {};
     }
 
     /**
+     * Runs all blocked scripts without checking for approval
+     */
+    var runScripts = function () {
+        cookiesDirectiveScriptWrapper();
+    }
+
+    /**
      * The main app logic
      */
     var cookiesDirectiveMain = function () {
@@ -118,7 +125,7 @@ window.cookiesDirective = {};
             }
         } else {
             // Cookies accepted run script wrapper
-            cookiesDirectiveScriptWrapper();
+            runScripts();
         }
     }
 
@@ -188,7 +195,7 @@ window.cookiesDirective = {};
         disclosure += '<div id="epdnotick" style="color:#ca0000;display:none;margin:2px;"><span style="background:#cecece;padding:2px;">';
         disclosure += agreementPromptText;
         disclosure += '</span></div>';
-        disclosure += '<label for="epdagree">' + checkboxLabel + '</label>';
+        disclosure += '<label for="epdagree" style="color:#fff">' + checkboxLabel + '</label>';
         disclosure += ' <input type="checkbox" name="epdagree" id="epdagree" style="padding:0; margin:0"/>&nbsp;';
         disclosure += '<input type="submit" name="epdsubmit" id="epdsubmit" value="' + buttonLabel + '" style="margin:0;padding:0" /></div></div>';
         document.getElementById("epd").innerHTML = disclosure;
@@ -247,7 +254,7 @@ window.cookiesDirective = {};
                 if (options.redirect !== false) {
                     location.reload(true);
                 } else {
-                    cookiesDirectiveScriptWrapper();
+                    runScripts();
                 }
             }
         );
