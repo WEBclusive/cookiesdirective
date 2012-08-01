@@ -15,6 +15,7 @@
  * @param checkboxLabel The text next to the checkbox
  * @param agreementText The text reminding the user to tick the checkbox
  * @param domain The domain to set the cookie to
+ * @param redirect Whether to redirect after accepting cookies or attempt to run js directly
  */
 function cookiesDirective(options)
 {
@@ -138,8 +139,14 @@ function cdHandler(options)
     var buttonLabel = options.buttonLabel || 'Continue';
     var checkboxLabel = options.checkboxLabel || 'I accept cookies from this site';
     var agreementPromptText = options.agreementText || 'You must tick the "I accept cookies from this site" box to accept';
-    var animationSettingsShow,
-        animationSettingsHide;
+    var redirectFlag = true; 
+    var animationSettingsShow;
+    var animationSettingsHide;
+    var disclosureHtml;
+    
+    if (typeof options.redirect !== 'undefined') {
+        redirectFlag = options.redirect;
+    }
 
     var defaultDisclosureHtml = 'On 26 May 2011, the rules about cookies on websites changed. This site uses cookies. ';
     defaultDisclosureHtml += 'Some of the cookies we use are essential for parts of the site to operate and have already been set. ';
@@ -152,7 +159,7 @@ function cdHandler(options)
     }
     defaultDisclosureHtml += '<br/>';
 
-    var disclosureHtml = options.disclosureHtml || defaultDisclosureHtml;
+    disclosureHtml = options.disclosureHtml || defaultDisclosureHtml;
 
     disclosurePosition = disclosurePosition.toLowerCase();
 
@@ -163,7 +170,7 @@ function cdHandler(options)
         disclosurePosition = 'top';
         cssPosition = 'absolute';
     }
-    
+
     // Create our overlay with message
     var divNode = document.createElement('div');
     divNode.setAttribute('id', 'epd');
@@ -213,7 +220,11 @@ function cdHandler(options)
                             // Remove the elements from the DOM and reload page,
                             // which should now fire our the scripts enclosed by our wrapper function
                             $('#cookiesdirective').remove();
-                            location.reload(true);
+                            if (redirectFlag) {
+                                location.reload(true);
+                            } else {
+                                cookiesDirectiveScriptWrapper();
+                            }
                         }
                     );
                 } else {
