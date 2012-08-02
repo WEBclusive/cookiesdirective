@@ -1,21 +1,5 @@
 /**
  * Cookies Directive Disclosure Script
- *
- * Accepts an option object with all params optional.
- * Valid params are:
- *
- * @param repeatCount The number of times to display the banner before giving up
- * @param policyUri The uri to point to for reading the policy. if not set no link will be printed
- * @param thirdPartyApps Array of strings with the 3rd party apps that use cookies (for use by default texts)
- * @param position Where to place the banner (top or bottom)
- * @param displayTimeout The number of seconds to display the banner each time
- * @param cssPosition Either 'fixed' or 'absolute'
- * @param disclosureHtml Overrides the default text (apart from the checkbox and button) 
- * @param buttonLabel The text of the submit button
- * @param checkboxLabel The text next to the checkbox
- * @param agreementText The text reminding the user to tick the checkbox
- * @param domain The domain to set the cookie to
- * @param redirect Whether to redirect after accepting cookies or attempt to run js directly
  */
 window.cookiesDirective = { scriptQueue: [] };
 
@@ -206,7 +190,7 @@ window.cookiesDirective = { scriptQueue: [] };
      * @return string
      */
     var getDefaultDisclosureHtml = function () {
-        var html = 'On 26 May 2011, the rules about cookies on websites changed. This site uses cookies. ';
+        var html = 'This site uses cookies. ';
         html += 'Some of the cookies we use are essential for parts of the site to operate and have already been set. ';
         html += getDefaultAppsDisclosureText();
         html += 'You may delete and block all cookies from this site, but parts of the site will not work. ';
