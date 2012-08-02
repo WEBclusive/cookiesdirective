@@ -1,9 +1,9 @@
 /**
  * Cookies Directive Disclosure Script
- * 
+ *
  * Accepts an option object with all params optional.
  * Valid params are:
- * 
+ *
  * @param repeatCount The number of times to display the banner before giving up
  * @param policyUri The uri to point to for reading the policy. if not set no link will be printed
  * @param thirdPartyApps Array of strings with the 3rd party apps that use cookies (for use by default texts)
@@ -17,12 +17,13 @@
  * @param domain The domain to set the cookie to
  * @param redirect Whether to redirect after accepting cookies or attempt to run js directly
  */
-
 window.cookiesDirective = {};
 
 (function() {
     var app = window.cookiesDirective;
     var options = {};
+
+    app.scriptQueue = [];
 
     /**
      * Constructor
@@ -59,6 +60,15 @@ window.cookiesDirective = {};
     }
 
     /**
+     * Queues one anonymous function for execution
+     * @param callback
+     */
+    app.queue = function (callback) {
+        var queue = app.scriptQueue;
+        queue.push(callback);
+    }
+
+    /**
      * Appends a script in the html head.
      * @param scriptUri
      * @param myLocation
@@ -92,6 +102,20 @@ window.cookiesDirective = {};
      */
     var runScripts = function () {
         cookiesDirectiveScriptWrapper();
+        app.executeQueue();
+    }
+
+    /**
+     * Executes queued up scripts
+     */
+    var executeQueue = function () {
+        var i;
+        var queue = app.scriptQueue;
+
+        while (queue.length > 0) {
+            var callback = queue.shift();
+            callback();
+        }
     }
 
     /**
