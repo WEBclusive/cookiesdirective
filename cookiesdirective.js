@@ -1,21 +1,5 @@
 /**
  * Cookies Directive Disclosure Script
- *
- * Accepts an option object with all params optional.
- * Valid params are:
- *
- * @param repeatCount The number of times to display the banner before giving up
- * @param policyUri The uri to point to for reading the policy. if not set no link will be printed
- * @param thirdPartyApps Array of strings with the 3rd party apps that use cookies (for use by default texts)
- * @param position Where to place the banner (top or bottom)
- * @param displayTimeout The number of seconds to display the banner each time
- * @param cssPosition Either 'fixed' or 'absolute'
- * @param disclosureHtml Overrides the default text (apart from the checkbox and button) 
- * @param buttonLabel The text of the submit button
- * @param checkboxLabel The text next to the checkbox
- * @param agreementText The text reminding the user to tick the checkbox
- * @param domain The domain to set the cookie to
- * @param redirect Whether to redirect after accepting cookies or attempt to run js directly
  */
 window.cookiesDirective = { scriptQueue: [] };
 
