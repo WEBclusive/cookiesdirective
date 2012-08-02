@@ -20,6 +20,9 @@
 window.cookiesDirective = { scriptQueue: [] };
 
 (function() {
+    /**
+     * private jQuery placeholder
+     */
     var $ = null;
     var app = window.cookiesDirective;
     var options = {};
@@ -128,7 +131,7 @@ window.cookiesDirective = { scriptQueue: [] };
      * @return boolean whether scripts have been run
      */
     var cookiesDirectiveMain = function () {
-        $ = jQuery.noConflict();
+        $ = jQuery;
         $(document).ready(function () {
             var disclosureCount;
             var displayTimes = options.repeatCount || 0;
