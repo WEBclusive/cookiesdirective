@@ -15,7 +15,7 @@ Configuration
 `cookiesDirective.init()` can accept an object with the following parameters for configuration:
 
 __Functionality/Positioning:__
-* `domain` : Explicitely sets the cookie domain. E.g. host.com instead of yourcookieapp.host.com
+* `domain` : Explicitly sets the cookie domain. E.g. host.com instead of yourcookieapp.host.com
 * `repeatCount` : The number of times to display the banner before giving up. Defaults to 0 (never give up!).
 * `position` : Where to place the banner ('top' or 'bottom'). Defaults to 'top'.
 * `redirect` : Whether to redirect after accepting cookies or attempt to run js directly. Defaults to true.
@@ -33,10 +33,10 @@ __Texts:__
 *__Example:__*
 ```javascript
 cookiesDirective.init({
-    thirdPartyApps: ['Google Analytics', 'whatever'],
+    thirdPartyApps: ['Google Analytics', 'Share-this'],
     policyUri: '/policy.html',
-    redirect: false,
-    displayTimeout: 3
+    checkboxLabel: 'Coookieeees',
+    displayTimeout: 10
 });
 ```
 
