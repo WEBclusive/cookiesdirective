@@ -59,48 +59,53 @@ window.cookiesDirective = { scriptQueue: [] };
 
     /**
      * Queues one anonymous function for execution
-     * @param callback
+     * or a uri for inclusion
+     * @param queueObj
      */
-    app.queue = function (callback) {
+    app.queue = function (queueObj) {
         var queue = app.scriptQueue;
-        queue.push(callback);
-    }
 
-    /**
-     * Appends a script in the html head.
-     * @param scriptUri
-     * @param myLocation
-     */
-    app.appendScript = function (scriptUri, myLocation) {
-        // Reworked in Version 1.1 - needed a more robust loader
-        var elementId = String(myLocation);
-        var sA = document.createElement("script");
-        sA.src = scriptUri;
-        sA.type = "text/javascript";
-        sA.onload = sA.onreadystatechange = function() {
-            if ((!sA.readyState || sA.readyState == "loaded" || sA.readyState == "complete")) {
-                return;
+        if (typeof queueObj == 'function') {
+            queue.push(queueObj);
+        } else {
+            if (options.redirect == false) {
+                console.log('Found script with src. This might not work the first time, without reloading the page.');
             }
-        }
-        switch (myLocation) {
-            case 'head':
-                document.getElementsByTagName('head')[0].appendChild(sA);
-                break;
-            case 'body':
-                document.getElementsByTagName('body')[0].appendChild(sA);
-                break;
-            default:
-                document.getElementById(elementId).appendChild(sA);
-                break;
+            queue.push(function() {
+                var script = document.createElement("script");
+                script.src = queueObj;
+                script.type = "text/javascript";
+                $('body').append(script);
+            });
         }
     }
 
     /**
      * Runs all blocked scripts without checking for approval
+     * after the document is ready
      */
     var runScripts = function () {
-        cookiesDirectiveScriptWrapper();
-        executeQueue();
+        $(document).ready(function () {
+            executeQueue();
+        });
+    }
+
+    /**
+     * Looks for queued scripts of type text/plain and queues them up
+     */
+    var queueInlineScripts = function () {
+        $('.cookie-directive-queue').each(function(){
+            var srcAttr = $(this).attr('src');
+            if (srcAttr) {
+                app.queue(srcAttr);
+            } else {
+                var jsCode = $(this).html();
+                app.queue(function() {
+                    var content = '<script type="text/javascript">' + jsCode + '</script>';
+                    $('body').after(content);
+                });
+            }
+        });
     }
 
     /**
@@ -118,12 +123,21 @@ window.cookiesDirective = { scriptQueue: [] };
 
     /**
      * The main app logic
+     * @return boolean whether scripts have been run
      */
     var cookiesDirectiveMain = function () {
-        var disclosureCount;
-        var displayTimes = options.repeatCount || 0;
+        $(document).ready(function () {
+            var disclosureCount;
+            var displayTimes = options.repeatCount || 0;
 
-        if (!cdReadCookie('cookiesDirective')) {
+            queueInlineScripts();
+
+            if (cdReadCookie('cookiesDirective')) {
+                // Cookies accepted run scripts
+                runScripts();
+                return true;
+            }
+
             if (displayTimes > 0) {
                 // We want to limit the number of times this is displayed
                 // Record the view
@@ -145,10 +159,8 @@ window.cookiesDirective = { scriptQueue: [] };
                 // Cookies not accepted make disclosure
                 initBanner(options);
             }
-        } else {
-            // Cookies accepted run script wrapper
-            runScripts();
-        }
+            return false;
+        });
     }
 
     /**
@@ -253,6 +265,9 @@ window.cookiesDirective = { scriptQueue: [] };
         );
     }
 
+    /**
+     * Hides the banner with a slide animation (after timeout)
+     */
     var hideBanner = function () {
         var animationSettingsHide = (options.position == 'bottom') ? { top: '-300' } : { bottom: '-300' };
 
@@ -265,6 +280,9 @@ window.cookiesDirective = { scriptQueue: [] };
         );
     }
 
+    /**
+     * Closes the banner destroying it (after accepting cookies)
+     */
     var closeBanner = function () {
         $('#cookiesdirective').animate(
             (options.position == 'bottom') ? { bottom: '-300' } : { top: '-300' },
