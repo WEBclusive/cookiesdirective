@@ -20,6 +20,7 @@
 window.cookiesDirective = { scriptQueue: [] };
 
 (function() {
+    var $ = null;
     var app = window.cookiesDirective;
     var options = {};
 
@@ -127,6 +128,7 @@ window.cookiesDirective = { scriptQueue: [] };
      * @return boolean whether scripts have been run
      */
     var cookiesDirectiveMain = function () {
+        $ = jQuery.noConflict();
         $(document).ready(function () {
             var disclosureCount;
             var displayTimes = options.repeatCount || 0;
