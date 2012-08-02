@@ -190,7 +190,7 @@ window.cookiesDirective = { scriptQueue: [] };
      * @return string
      */
     var getDefaultDisclosureHtml = function () {
-        var html = 'On 26 May 2011, the rules about cookies on websites changed. This site uses cookies. ';
+        var html = 'This site uses cookies. ';
         html += 'Some of the cookies we use are essential for parts of the site to operate and have already been set. ';
         html += getDefaultAppsDisclosureText();
         html += 'You may delete and block all cookies from this site, but parts of the site will not work. ';
