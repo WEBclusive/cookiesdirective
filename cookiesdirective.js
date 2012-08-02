@@ -227,8 +227,6 @@ window.cookiesDirective = { scriptQueue: [] };
         var checkboxLabel = options.checkboxLabel || 'I accept cookies from this site';
         var agreementPromptText = options.agreementText || 'You must tick the "I accept cookies from this site" box to accept';
         var disclosureHtml = options.disclosureHtml || getDefaultDisclosureHtml();
-        var animationSettingsShow;
-        var animationSettingsHide;
 
         // Create our overlay with message
         var divNode = document.createElement('div');
@@ -285,13 +283,11 @@ window.cookiesDirective = { scriptQueue: [] };
      * Hides the banner with a slide animation (after timeout)
      */
     var hideBanner = function () {
-        var animationSettingsHide = (options.position == 'bottom') ? { top: '-300' } : { bottom: '-300' };
-
         $('#cookiesdirective').animate(
             { opacity : '0' },
             2000,
             function() {
-                $('#cookiesdirective').css(animationSettingsHide);
+                $('#cookiesdirective').remove();
             }
         );
     }
