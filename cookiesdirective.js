@@ -127,6 +127,16 @@ window.cookiesDirective = { scriptQueue: [] };
     }
 
     /**
+     * Adds a Modernizr for tracking being allowed
+     */
+    var trackingAllowed = function (trackingFlag) {
+        if (typeof Modernizr == 'undefined') {
+            return;
+        }
+        Modernizr.addTest('tracking-allowed', function() { return trackingFlag; });
+    }
+
+    /**
      * The main app logic
      * @return boolean whether scripts have been run
      */
@@ -141,7 +151,7 @@ window.cookiesDirective = { scriptQueue: [] };
             if (cdReadCookie('cookiesDirective')) {
                 // Cookies accepted run scripts
                 runScripts();
-                return true;
+                return trackingAllowed(true);
             }
 
             if (displayTimes > 0) {
@@ -165,7 +175,7 @@ window.cookiesDirective = { scriptQueue: [] };
                 // Cookies not accepted make disclosure
                 initBanner(options);
             }
-            return false;
+            return trackingAllowed(false);
         });
     }
 
