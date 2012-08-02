@@ -17,13 +17,11 @@
  * @param domain The domain to set the cookie to
  * @param redirect Whether to redirect after accepting cookies or attempt to run js directly
  */
-window.cookiesDirective = {};
+window.cookiesDirective = { scriptQueue: [] };
 
 (function() {
     var app = window.cookiesDirective;
     var options = {};
-
-    app.scriptQueue = [];
 
     /**
      * Constructor
@@ -102,7 +100,7 @@ window.cookiesDirective = {};
      */
     var runScripts = function () {
         cookiesDirectiveScriptWrapper();
-        app.executeQueue();
+        executeQueue();
     }
 
     /**
