@@ -34,6 +34,7 @@ window.cookiesDirective = { scriptQueue: [] };
         // parse some generic parameters
         options.position = options.position || 'top';
         options.cssPosition = options.cssPosition || 'fixed';
+        options.redirect = (options.redirect !== false);
         options.displayTimeout = options.displayTimeout || 9999;
 
         // Start Test/Loader (improved in v1.1)
@@ -68,7 +69,7 @@ window.cookiesDirective = { scriptQueue: [] };
         if (typeof queueObj == 'function') {
             queue.push(queueObj);
         } else {
-            if (options.redirect == false) {
+            if (!options.redirect) {
                 console.log('Found script with src. This might not work the first time, without reloading the page.');
             }
             queue.push(function() {
@@ -291,7 +292,7 @@ window.cookiesDirective = { scriptQueue: [] };
                 // Remove the elements from the DOM and reload page,
                 // which should now fire our the scripts enclosed by our wrapper function
                 $('#cookiesdirective').remove();
-                if (options.redirect !== false) {
+                if (options.redirect) {
                     location.reload(true);
                 } else {
                     runScripts();
