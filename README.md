@@ -3,6 +3,66 @@
 This no longer matches the original stable version and is undergoing refactoring/rewriting.
 You may still find the original version in cookiesdirective.com
 
+Installation
+================
+```html
+<script src="/path/to/cookiesdirective.js"></script>
+<script>cookiesDirective.init();</script>
+```
+
+Configuration
+================
+`cookiesDirective.init()` can accept an object with the following parameters for configuration:
+
+__Functionality/Positioning:__
+* `domain` : Explicitely sets the cookie domain. E.g. host.com instead of yourcookieapp.host.com
+* `repeatCount` : The number of times to display the banner before giving up. Defaults to 0 (never give up!).
+* `position` : Where to place the banner ('top' or 'bottom'). Defaults to 'top'.
+* `redirect` : Whether to redirect after accepting cookies or attempt to run js directly. Defaults to true.
+* `displayTimeout` : The number of seconds to display the banner each time. Defaults to 9999.
+* `cssPosition` : Either 'fixed' or 'absolute'. Defaults to 'fixed'
+
+__Texts:__
+* `policyUri` : The uri to point to for reading the policy. If not set no link will be printed.
+* `thirdPartyApps` : Array of strings with the 3rd party apps that use cookies (for use by default texts)
+* `disclosureHtml` : Overrides the default text (apart from the checkbox and button)
+* `buttonLabel` : The text of the submit button
+* `checkboxLabel` : The text next to the checkbox
+* `agreementText` : The text reminding the user to tick the checkbox
+
+*__Example:__*
+```javascript
+cookiesDirective.init({
+    thirdPartyApps: ['Google Analytics', 'whatever'],
+    policyUri: '/policy.html',
+    redirect: false,
+    displayTimeout: 3
+});
+```
+
+Queueing for cookie acceptance
+================
+- An anonymous function
+    ```javascript
+    cookiesDirective.queue(function() {
+        console.log('lambda');
+    });
+    ```
+
+- An inline script
+    ```html
+    <script type="text/plain" class="cookie-directive-queue">
+        console.log('test');
+    </script>
+    ```
+
+- An external script
+    ```html
+    <script type="text/plain" class="cookie-directive-queue" src="http://hostname/example/file.js"></script>
+    ```
+    *Do not use this without redirection as many scripts depend on document-load events which might have already happened.*
+    
+
 Licence
 ================
 Copyright (C) 2011 by Ollie Phillips
