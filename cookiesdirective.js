@@ -20,6 +20,7 @@ window.cookiesDirective = { scriptQueue: [] };
         }
 
         // parse some generic parameters
+        options.defaultChecked  = options.defaultChecked || true;
         options.position = options.position || 'top';
         options.cssPosition = options.cssPosition || 'fixed';
         options.redirect = (options.redirect !== false);
@@ -228,7 +229,8 @@ window.cookiesDirective = { scriptQueue: [] };
         disclosure += agreementPromptText;
         disclosure += '</span></div>';
         disclosure += '<label for="epdagree" style="color:#fff">' + checkboxLabel + '</label>';
-        disclosure += ' <input type="checkbox" name="epdagree" id="epdagree" style="padding:0; margin:0"/>&nbsp;';
+        disclosure += ' <input type="checkbox" name="epdagree" id="epdagree" '+ options.defaultChecked ? 'checked="checked';
+        disclosure += ' style="padding:0; margin:0"/>&nbsp;';
         disclosure += '<input type="submit" name="epdsubmit" id="epdsubmit" value="' + buttonLabel + '" style="margin:0;padding:0" /></div></div>';
         document.getElementById("epd").innerHTML = disclosure;
 

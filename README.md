@@ -20,7 +20,8 @@ __Functionality/Positioning:__
 * `position` : Where to place the banner ('top' or 'bottom'). Defaults to 'top'.
 * `redirect` : Whether to redirect after accepting cookies or attempt to run js directly. Defaults to true.
 * `displayTimeout` : The number of seconds to display the banner each time. Defaults to 9999.
-* `cssPosition` : Either 'fixed' or 'absolute'. Defaults to 'fixed'
+* `cssPosition` : Either 'fixed' or 'absolute'. Defaults to 'fixed'.
+* `defaultChecked` : Boolean, whether the checkbox will be checked by default.
 
 __Texts:__
 * `policyUri` : The uri to point to for reading the policy. If not set no link will be printed.
