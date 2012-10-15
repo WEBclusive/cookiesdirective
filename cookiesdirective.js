@@ -115,7 +115,7 @@ window.cookiesDirective = { scriptQueue: [] };
      * Adds a Modernizr for tracking being allowed
      */
     var trackingAllowed = function (trackingFlag) {
-        if (typeof Modernizr == 'undefined') {
+        if (typeof Modernizr == 'undefined' || typeof Modernizr.addTest == 'undefined') {
             return;
         }
         Modernizr.addTest('tracking-allowed', function() { return trackingFlag; });
